@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
+import { getDatabase } from "firebase/database"
+import { app } from "firebase"
+
+const db = getDatabase(app);
 
 function App() {
   const [count, setCount] = useState(0)
