@@ -1,34 +1,37 @@
-// src/pages/Login.jsx
+// src/pages/HRLogin.jsx
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Login() {
+export default function HRLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-        // Redirect directly to summarizer page
-        navigate("/summarizer");
-
+      // Example: check if email is authorized for HR
+      if (email.endsWith("@company.com")) { // simple check, can be replaced with DB verification
+        navigate("/hr-dashboard");
+      } else {
+        setError("You are not authorized as an HR manager.");
+      }
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     }
-    };
-
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <h2 className="text-3xl font-bold text-[#3F3A32] mb-6">Login</h2>
+      <h2 className="text-3xl font-bold text-[#3F3A32] mb-6">HR Login</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleLogin} className="flex flex-col gap-4 w-80">
         <input
@@ -56,7 +59,7 @@ export default function Login() {
       </form>
       <p className="mt-4 text-sm">
         Don't have an account?{" "}
-        <Link to="/signup" className="text-blue-500 underline">
+        <Link to="/hr-signup" className="text-blue-500 underline">
           Sign Up
         </Link>
       </p>
