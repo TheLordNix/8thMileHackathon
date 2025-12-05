@@ -19,11 +19,8 @@ export default function HRLogin() {
       const user = userCredential.user;
 
       // Example: check if email is authorized for HR
-      if (email.endsWith("@company.com")) { // simple check, can be replaced with DB verification
-        navigate("/hr-dashboard");
-      } else {
-        setError("You are not authorized as an HR manager.");
-      }
+      navigate("/hr-dashboard");
+
     } catch (err) {
       setError(err.message);
     }

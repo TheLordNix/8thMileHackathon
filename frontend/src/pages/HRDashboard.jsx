@@ -1,6 +1,6 @@
 // src/pages/HRDashboard.jsx
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import { ref, onValue, remove } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { FiPlus, FiTrash2, FiEdit, FiUsers } from "react-icons/fi";
@@ -13,7 +13,18 @@ export default function HRDashboard() {
     const jobsRef = ref(db, "jobs/");
     onValue(jobsRef, (snapshot) => {
       const data = snapshot.val() || {};
-      setJobs(Object.entries(data).map(([id, job]) => ({ id, ...job })));
+      const user = auth.currentUser;
+
+      if (!user) {
+        setJobs([]);
+        return;
+      }
+
+      const filteredJobs = Object.entries(data)
+        .map(([id, job]) => ({ id, ...job }))
+        .filter(job => job.hrId === user.uid);
+
+      setJobs(filteredJobs);
     });
   }, []);
 

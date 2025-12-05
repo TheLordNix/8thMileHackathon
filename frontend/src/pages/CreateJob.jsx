@@ -1,6 +1,6 @@
 // src/pages/CreateJob.jsx
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import { ref, set, get } from "firebase/database";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -28,6 +28,14 @@ export default function CreateJob() {
       get(jobRef).then((snap) => {
         if (snap.exists()) {
           const job = snap.val();
+
+          // Verify ownership
+          if (auth.currentUser && job.hrId && job.hrId !== auth.currentUser.uid) {
+            alert("You are not authorized to edit this job.");
+            navigate("/hr-dashboard");
+            return;
+          }
+
           setTitle(job.title || "");
           setPositions(job.positions || 1);
           setKeywords(job.keywords || "");
@@ -41,12 +49,23 @@ export default function CreateJob() {
         }
       });
     }
-  }, [editId]);
+  }, [editId, navigate]);
 
   const saveJob = async (e) => {
     e.preventDefault();
 
+    if (!auth.currentUser) {
+      alert("You must be logged in to create a job.");
+      return;
+    }
+
     const id = editId || Date.now().toString();
+
+    // If editing, we should preserve the original hrId, but for simplicity in this structure
+    // we can re-assert it or fetch it. Since we verified ownership above, we can just use currentUser.uid
+    // However, to be safe and support the case where we might not have fetched it yet (if logic changes),
+    // let's just write it.
+
     await set(ref(db, "jobs/" + id), {
       title,
       positions,
@@ -59,6 +78,7 @@ export default function CreateJob() {
       responsibilities,
       requirements,
       createdAt: new Date().toISOString(),
+      hrId: auth.currentUser.uid, // Add HR ID
     });
 
     navigate("/hr-dashboard");
