@@ -18,20 +18,25 @@ export default function HRSignup() {
     setError("");
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
-      // Save HR info in Firebase DB
+      // Save HR info in Firebase DB (NO verification field)
       await set(ref(db, "hrUsers/" + user.uid), {
         name,
         email,
         company,
         createdAt: new Date().toISOString(),
-        verified: false, // mark as unverified initially
       });
 
-      alert("Your account has been created. Please wait for verification.");
-      navigate("/hr-login");
+      // Directly redirect to HR dashboard
+      alert("HR account created successfully!");
+      navigate("/hr-dashboard");
+
     } catch (err) {
       setError(err.message);
     }
@@ -41,6 +46,7 @@ export default function HRSignup() {
     <div className="flex flex-col items-center justify-center h-screen">
       <h2 className="text-3xl font-bold text-[#3F3A32] mb-6">HR Sign Up</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
+
       <form onSubmit={handleSignup} className="flex flex-col gap-4 w-80">
         <input
           type="text"
@@ -50,6 +56,7 @@ export default function HRSignup() {
           className="px-4 py-2 border rounded-lg"
           required
         />
+
         <input
           type="email"
           placeholder="Work Email"
@@ -58,6 +65,7 @@ export default function HRSignup() {
           className="px-4 py-2 border rounded-lg"
           required
         />
+
         <input
           type="text"
           placeholder="Company Name"
@@ -66,6 +74,7 @@ export default function HRSignup() {
           className="px-4 py-2 border rounded-lg"
           required
         />
+
         <input
           type="password"
           placeholder="Password"
@@ -74,6 +83,7 @@ export default function HRSignup() {
           className="px-4 py-2 border rounded-lg"
           required
         />
+
         <button
           type="submit"
           className="px-4 py-2 bg-[#BDE4C8] text-[#3F3A32] rounded-xl font-semibold hover:opacity-80 transition"

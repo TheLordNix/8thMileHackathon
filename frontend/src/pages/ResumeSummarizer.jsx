@@ -1,13 +1,14 @@
+// src/pages/ResumeSummarizer.jsx
 import React, { useState } from 'react';
 import { getAuth } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { db } from "../firebase";
+import { ref, set } from "firebase/database";
 
 export default function ResumeSummarizer() {
   const [text, setText] = useState('');
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -22,36 +23,33 @@ export default function ResumeSummarizer() {
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-      
       if (!user) {
         setError('You must be logged in to submit.');
         return;
       }
 
       setLoading(true);
-      const token = await user.getIdToken();
-      console.log('Token obtained:', token.substring(0, 20) + '...');
-
+      // call your backend summarizer (adjust URL/port as needed)
       const res = await fetch('http://localhost:3001/data', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       });
 
-      console.log('Response status:', res.status);
-
       if (!res.ok) {
-        const errText = await res.text();
-        console.error('Server error:', errText);
-        throw new Error(errText || `Server error: ${res.status}`);
+        throw new Error(await res.text());
       }
 
       const data = await res.json();
-      console.log('Summary received:', data);
       setSummary(data.summary);
+
+      // save to firebase under user
+      await set(ref(db, "users/" + user.uid + "/summary"), {
+        summary: data.summary,
+        updatedAt: new Date().toISOString()
+      });
+
+      alert("Summary saved to your profile.");
     } catch (err) {
       console.error('Error:', err);
       setError(err.message || 'Something went wrong');
@@ -94,14 +92,6 @@ export default function ResumeSummarizer() {
               className="px-4 py-2 border rounded-xl text-sm"
             >
               Clear
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="ml-auto text-sm underline"
-            >
-              Back
             </button>
           </div>
         </form>

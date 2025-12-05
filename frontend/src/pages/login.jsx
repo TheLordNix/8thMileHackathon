@@ -10,56 +10,56 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Redirect directly to summarizer page
-        navigate("/summarizer");
-
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/jobs"); // redirect applicant to jobs page
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     }
-    };
-
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h2 className="text-3xl font-bold text-[#3F3A32] mb-6">Login</h2>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      <form onSubmit={handleLogin} className="flex flex-col gap-4 w-80">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="px-4 py-2 border rounded-lg"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="px-4 py-2 border rounded-lg"
-          required
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-[#BDE4C8] text-[#3F3A32] rounded-xl font-semibold hover:opacity-80 transition"
-        >
-          Login
-        </button>
-      </form>
-      <p className="mt-4 text-sm">
-        Don't have an account?{" "}
-        <Link to="/signup" className="text-blue-500 underline">
-          Sign Up
-        </Link>
-      </p>
+    <div className="flex flex-col items-center justify-center h-screen bg-[#F4E9D8]">
+      <div className="w-80 p-8 bg-white/60 backdrop-blur rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold text-[#3F3A32] mb-6 text-center">Login</h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="px-4 py-2 border rounded-xl focus:outline-none"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="px-4 py-2 border rounded-xl focus:outline-none"
+            required
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-[#BDE4C8] text-[#3F3A32] rounded-xl font-semibold hover:opacity-90 transition"
+          >
+            Login
+          </button>
+        </form>
+
+        <p className="mt-4 text-sm text-center">
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-[#3F3A32] underline font-medium">
+            Sign Up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
